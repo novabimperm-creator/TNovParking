@@ -29,25 +29,32 @@ namespace TNovParking
         }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            string TNovClassName = "Парковки Марка Позиция"; DateTime dateTime = DateTime.Now; string TNovVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            #region Исходные
+            DateTime dateTime = DateTime.Now;
+            string TNovVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            string DBCommandName = "Парковки Марка Позиция";
             //подключение приложения и документа
             if (RevitAPI.UiApplication == null) { RevitAPI.Initialize(commandData); }
             UIDocument uidoc = RevitAPI.UiDocument; Document doc = RevitAPI.Document;
             UIApplication uiApp = RevitAPI.UiApplication; Autodesk.Revit.ApplicationServices.Application rvtApp = uiApp.Application;
-            
-            //проверка подключения, запись в журнал
-            if(ServerUtils.CheckConnection(TNovClassName, TNovVersion)==false) return Result.Failed;
+            string docName = doc.Title.ToString(); docName = docName.Replace(",", " ");
+            string userName = rvtApp.Username; userName = userName.Replace(",", "");
+            string docNameUserName = "_" + userName; docName = docName.Replace(docNameUserName, "");
+            docName = docName.Replace(",", "");
+            #endregion
 
+            TNovConfig config = TNovConfigLoad.LoadConfig(DBCommandName, TNovVersion);
+
+            #region Настройки логов
             // создание log - файла
-            Logger.Initialize(TNovClassName,dateTime,TNovVersion);
-            
+            Logger.Initialize(DBCommandName, dateTime, TNovVersion);
 
             var viewModel0 = new AppVersionViewModel();
-            
-            string jsonpath0 = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TNovClient/TNovSettings.json"); 
+
+            string jsonpath0 = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "TNovClient/TNovSettings.json");
             viewModel0 = JsonConvert.DeserializeObject<AppVersionViewModel>(File.ReadAllText(jsonpath0));
             if (viewModel0.extendedLogs)
-            
+
             {
                 var qViewModel = new QuestionWindowViewModel();
                 qViewModel.headtxt = "Включены расширенные логи. " +
@@ -56,14 +63,16 @@ namespace TNovParking
                 var qwpfview = new QuestionWindow280(qViewModel);
                 qViewModel.CloseRequest += (s, e) => qwpfview.Close();
                 bool? qok = qwpfview.ShowDialog();
-                if (qok != null && qok == true) { Logger.TurnOffExtendedLogs(); } else Logger.Log( "Расширенные логи вкл", 2);
+                if (qok != null && qok == true) { Logger.TurnOffExtendedLogs(); } else Logger.Log("Расширенные логи вкл", 2);
             }
+            #endregion
 
             //параметры
             Guid NLevelNumberParamGuid = new Guid("4d2aa1b8-727c-43a1-8b1e-8c22dd484e11"); //N_Эт.Номер
             Guid adskPositionParamGuid = new Guid("ae8ff999-1f22-4ed7-ad33-61503d85f0f4"); //A_Позиция
             BuiltInParameter markParam = BuiltInParameter.DOOR_NUMBER; //Марка
 
+            #region Сбор элементов
             Logger.Log("Сбор элементов",1);
 
             List<FamilyInstance> parks = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Parking)   //фильтр по категории Парковка
@@ -78,12 +87,13 @@ namespace TNovParking
 
             ElementId workviewid = uidoc.ActiveView.Id;
             Logger.Log("Элементы собраны. Выбор сценария",1);
-            
-            //Диалог
+            #endregion
+
+            #region Диалог
             var viewModel = new ParkMarkViewModel();
             // Десериализация
             bool forProject = true;
-            json js = new json(in TNovClassName, in forProject, out bool canserialize, out string jsonpath);
+            json js = new json(in DBCommandName, in forProject, out bool canserialize, out string jsonpath);
             if (canserialize)
             {
                 viewModel = JsonConvert.DeserializeObject<ParkMarkViewModel>(File.ReadAllText(jsonpath));
@@ -108,9 +118,11 @@ namespace TNovParking
             string prefix = viewModel.prefix; 
 
             Logger.Log("Сценарий: " + scenario  +", "+ allstr + ";",1);
+            #endregion
 
             string badelems = "";
 
+            #region Списки в работу
             Logger.Log("Создаем список элементов класса Park",1);
 
             List<Park> parkss = new List<Park>(); //список элементов класса Park
@@ -136,12 +148,14 @@ namespace TNovParking
                 parkss.Add(pk);
             }
             Logger.Log("Список элементов класса Park создан",1);
+            #endregion
 
             if (scenario.Contains("Марку в Позицию")==false) { prefix = ""; } //целевой параметр - марка
 
+            #region Основной код
             using (Transaction transaction = new Transaction(doc))
             {
-                transaction.Start("TNov - Парковки Марка Позиция");
+                try{transaction.Start("TNov - Парковки Марка Позиция");
                 TransactionHandler.SetWarningResolver(transaction);
                 Logger.Log("Открываем транзакцию",1);
 
@@ -198,11 +212,19 @@ namespace TNovParking
                 }
                 
                 transaction.Commit();
-                this.pmProgressBar.Dispatcher.Invoke((System.Action)(() => this.pmProgressBar.Close()));
+                
                 Logger.Log("Закрываем транзакцию",1);
-
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log("Ошибка: " + ex.Message, 4);
+                }
+                finally
+                {
+                    CloseProgressBarSafely();
+                }
             }
-
+            #endregion
             if (badelems.Length > 0)
             {
                 int ind = badelems.Length-1;
@@ -210,13 +232,28 @@ namespace TNovParking
                 ind--; badelems = badelems.Remove(ind);
                 Logger.Log("Открываем окно с ID проблемных элементов: " + String.Join(",", badelems), 1);
                 // Диалоговое окно
-                ElementsTreeWindow window = new ElementsTreeWindow(uiApp, String.Join(",", badelems), TNovClassName, dateTime, TNovVersion);
+                ElementsTreeWindow window = new ElementsTreeWindow(uiApp, String.Join(",", badelems), DBCommandName, dateTime, TNovVersion);
                 window.Show();
             }
 
             Logger.Log("Завершение работы.",5);
             return Result.Succeeded;
         }
+        private void CloseProgressBarSafely()
+        {
+            if (pmProgressBar != null &&
+                pmProgressBar.Dispatcher != null &&
+                !pmProgressBar.Dispatcher.HasShutdownStarted)
+            {
+                pmProgressBar.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (pmProgressBar.IsLoaded)
+                        pmProgressBar.Close();
+                    // Завершаем цикл сообщений диспетчера, чтобы поток завершился
+                    Dispatcher.CurrentDispatcher.InvokeShutdown();
+                }));
+            }
+        }
     }
-    
+
 }

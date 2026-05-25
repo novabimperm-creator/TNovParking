@@ -152,6 +152,7 @@ namespace TNovParking
 
             if (scenario.Contains("Марку в Позицию")==false) { prefix = ""; } //целевой параметр - марка
 
+            bool unhandledError = false;
             #region Основной код
             using (Transaction transaction = new Transaction(doc))
             {
@@ -218,6 +219,8 @@ namespace TNovParking
                 catch (Exception ex)
                 {
                     Logger.Log("Ошибка: " + ex.Message, 4);
+                    new InfoWindow280("Ошибка: " + ex.Message).ShowDialog();
+                    unhandledError = true;
                 }
                 finally
                 {
@@ -236,6 +239,11 @@ namespace TNovParking
                 window.Show();
             }
 
+            if (unhandledError)
+            {
+                Logger.Log("Завершение работы с ошибками.", 4);
+                return Result.Succeeded;
+            }
             Logger.Log("Завершение работы.",5);
             return Result.Succeeded;
         }

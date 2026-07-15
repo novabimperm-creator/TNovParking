@@ -1,0 +1,40 @@
+\\fs-nova\Distr\0.For Admin\_TNov\build\2022\TNovParking.dll
+\\fs-nova\Distr\0.For Admin\_TNov\build\2022\TNovParking.pdb
+Z:\DEV\TNovParking\obj\R2022\TNovParking.csproj.AssemblyReference.cache
+Z:\DEV\TNovParking\obj\R2022\ParkMarkWPF.g.cs
+Z:\DEV\TNovParking\obj\R2022\ParkNumWPF.g.cs
+Z:\DEV\TNovParking\obj\R2022\ParkWPF.g.cs
+Z:\DEV\TNovParking\obj\R2022\TNovParking_MarkupCompile.cache
+Z:\DEV\TNovParking\obj\R2022\TNovParking_MarkupCompile.lref
+Z:\DEV\TNovParking\obj\R2022\ParkMarkWPF.baml
+Z:\DEV\TNovParking\obj\R2022\ParkNumWPF.baml
+Z:\DEV\TNovParking\obj\R2022\ParkWPF.baml
+Z:\DEV\TNovParking\obj\R2022\TNovParking.g.resources
+Z:\DEV\TNovParking\obj\R2022\TNovParking.csproj.CoreCompileInputs.cache
+Z:\DEV\TNovParking\obj\R2022\TNovPark.BD808A4A.Up2Date
+Z:\DEV\TNovParking\obj\R2022\TNovParking.dll
+Z:\DEV\TNovParking\obj\R2022\TNovParking.pdb
+\\fs-nova\Distr\0.For Admin\_TNov\build\2022\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_buildtest\r2022\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_buildtest\r2022\TNovParking.dll
+Z:\DEV\_buildtest\r2022\TNovParking.pdb
+Z:\DEV\TNovParking\obj\R2022\TNovParking.GeneratedMSBuildEditorConfig.editorconfig
+Z:\DEV\TNovParking\obj\R2022\TNovParking.sourcelink.json
+Z:\DEV\_build-test\2022\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build-test\2022\TNovParking.dll
+Z:\DEV\_build-test\2022\TNovParking.pdb
+Z:\DEV\_build-test\2022-classic\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build-test\2022-classic\TNovParking.dll
+Z:\DEV\_build-test\2022-classic\TNovParking.pdb
+Z:\DEV\_build-test\2022-fix\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build-test\2022-fix\TNovParking.dll
+Z:\DEV\_build-test\2022-fix\TNovParking.pdb
+\\fs-nova\Distr\0.For Admin\_TNov\build\2022\System.Resources.Extensions.dll
+Z:\DEV\_build\TNov\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build\TNov\System.Resources.Extensions.dll
+Z:\DEV\_build\TNov\TNovParking.dll
+Z:\DEV\_build\TNov\TNovParking.pdb
+Z:\DEV\_build\TNovParking\runtimes\win-x64\native\WebView2Loader.dll
+Z:\DEV\_build\TNovParking\System.Resources.Extensions.dll
+Z:\DEV\_build\TNovParking\TNovParking.dll
+Z:\DEV\_build\TNovParking\TNovParking.pdb
